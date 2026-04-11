@@ -33,6 +33,7 @@ jobs:
           args: >
             -Dsonar.projectKey=muvvaalaakash_payment-service
             -Dsonar.sources=.
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
       # 3️⃣ SonarQube Quality Gate
       - name: SonarQube Quality Gate Check
