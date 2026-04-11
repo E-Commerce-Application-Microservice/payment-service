@@ -1,0 +1,20 @@
+name: Snyk
+on:
+  push:
+    branches:
+      - muvvaalaakash-ci-pipeline
+ 
+jobs:
+  snyk-sca:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+ 
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+ 
+      - name: Snyk Monitor
+        run: snyk monitor --file=backend/package.json
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
