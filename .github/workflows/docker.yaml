@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - M-VIGNESH3-patch-1
+      - muvvaalaakash-ci-pipeline
  
 jobs:
   docker-security-scan:
