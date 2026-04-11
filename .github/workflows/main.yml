@@ -32,6 +32,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=muvvaalaakash_payment-service
+            -Dsonar.sources=.
 
       # 3️⃣ SonarQube Quality Gate
       - name: SonarQube Quality Gate Check
