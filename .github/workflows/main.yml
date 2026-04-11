@@ -3,10 +3,7 @@ name: SonarCloud Analysis & Quality Gate
 on:
   push:
     branches:
-      - main
-      - develop
-  pull_request:
-    types: [opened, synchronize, reopened]
+      - muvvaalaakash-ci-pipeline
 
 jobs:
   sonarcloud:
