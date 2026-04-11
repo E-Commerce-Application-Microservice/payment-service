@@ -1,68 +1,93 @@
-name: SonarCloud Analysis & Quality Gate
+name: SonarQube Security Scan
 
 on:
   push:
-    branches:
-      - muvvaalaakash-ci-pipeline
-  # pull_request:
-  #   types: [opened, synchronize, reopened]
+    branches: [ "muvvaalaakash-ci-pipeline" ]
+  pull_request:
+    branches: [ "muvvaalaakash-ci-pipeline" ]
+  workflow_dispatch:
+
+permissions:
+  pull-requests: read
+  contents: read
 
 jobs:
-  sonarcloud:
-    name: SonarCloud Scan
+  sonarqube:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      pull-requests: write
-
     steps:
-      # 1️⃣ Checkout full git history (required by Sonar)
-      - name: Checkout source
+      # 1️⃣ Checkout full history
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2️⃣ Run SonarCloud analysis
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v3.1.0
+      # 2️⃣ SonarQube Scan
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
             -Dsonar.projectKey=muvvaalaakash_payment-service
-            -Dsonar.organization=muvvaalaakash
-            -Dsonar.sources=.
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
-            -Dsonar.pullrequest.branch=${{ github.head_ref }}
-            -Dsonar.pullrequest.base=${{ github.base_ref }}
 
-      # 3️⃣ Check SonarCloud Quality Gate
-      - name: SonarCloud Quality Gate
+      # 3️⃣ SonarQube Quality Gate
+      - name: SonarQube Quality Gate Check
         id: quality-gate
-        uses: SonarSource/sonarcloud-quality-gate-action@v1.1.0
+        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      # 4️⃣ Send email ONLY if Quality Gate fails
-      - name: Send email on Quality Gate failure
+      # 4️⃣ Send SUCCESS mail
+      - name: Send success mail
+        if: steps.quality-gate.outcome == 'success'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: ✅ SonarQube Security Scan Passed
+          body: |
+            Hi,
+
+            SonarQube security scan completed successfully.
+            No Quality Gate violations found.
+
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+
+            ✅ Pipeline Status: SUCCESS
+          to: ${{ secrets.MAIL_USERNAME }}
+          from: CI Pipeline <${{ secrets.MAIL_USERNAME }}>
+
+      # 5️⃣ Send FAILURE mail
+      - name: Send failure mail
         if: steps.quality-gate.outcome == 'failure'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
+          secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "❌ SonarCloud Quality Gate Failed - ${{ github.repository }}"
-          to: your-real-email@example.com
-          from: GitHub Actions CI
+          subject: ❌ SonarQube Security Scan Failed
           body: |
-            ❌ SonarCloud Quality Gate FAILED
+            Hi,
+
+            SonarQube security scan FAILED.
+            Quality Gate conditions were violated.
 
             Repository: ${{ github.repository }}
             Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
 
-            Please review the analysis in SonarCloud.
+            ❌ Pipeline Status: FAILED
+
+            Please check the SonarQube dashboard for details.
+          to: ${{ secrets.MAIL_USERNAME }}
+          from: CI Pipeline <${{ secrets.MAIL_USERNAME }}>
