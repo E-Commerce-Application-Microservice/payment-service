@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - muvvaalaakash-ci-pipeline
- 
 jobs:
   sonarqube:
     runs-on: ubuntu-latest
