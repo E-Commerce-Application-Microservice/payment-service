@@ -1,7 +1,11 @@
 name: Build, Scan & Push Secure Image
 
 on:
-  push:
+  workflow_run:
+    # ⚠️ REPLACE "Snyk Scan" with the EXACT 'name:' found at the top of your snyk.yaml
+    workflows: ["Snyk Scan"]
+    types:
+      - completed
     branches:
       - main
       - muvvaalaakash-ci-pipeline
@@ -18,6 +22,8 @@ env:
 
 jobs:
   docker-security-scan:
+    # This allows it to run IF manually triggered OR IF the upstream Snyk workflow succeeded
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
