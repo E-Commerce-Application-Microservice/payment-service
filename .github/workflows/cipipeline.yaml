@@ -12,19 +12,19 @@ env:
 jobs:
 
 # 🔍 1. SONAR
-sonar:
-  runs-on: ubuntu-latest
+  sonar:
+    runs-on: ubuntu-latest
 
-  steps:
-    - uses: actions/checkout@v4
-
-    - name: Sonar Scan with Quality Gate
-      run: |
-        mvn clean verify sonar:sonar \
-        -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
-        -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-        -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-        -Dsonar.qualitygate.wait=true
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Sonar Scan with Quality Gate
+        run: |
+          mvn clean verify sonar:sonar \
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.qualitygate.wait=true
 
 # 🔐 2. SNYK (runs only if sonar passes)
   snyk:
