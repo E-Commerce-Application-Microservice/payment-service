@@ -65,7 +65,7 @@ jobs:
         run: |
           trivy image \
             --exit-code 1 \
-            --severity CRITICAL \
+            --severity  \
             $IMAGE_NAME:${{ env.VERSION }}
 
       # 📊 Step 4: Generate report (only if passed)
