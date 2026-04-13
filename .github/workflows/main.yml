@@ -2,6 +2,7 @@ name: SonarQube Scan & Alert
 on:
   push:
     branches:
+      - main
       - muvvaalaakash-ci-pipeline
 jobs:
   sonarqube:
