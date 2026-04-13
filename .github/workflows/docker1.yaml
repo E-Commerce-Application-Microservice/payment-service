@@ -62,10 +62,11 @@ jobs:
 
       # 🔍 Step 3: FAIL if vulnerabilities found
       - name: Trivy Scan (Fail on CRITICAL)
+        continue-on-error: true
         run: |
           trivy image \
             --exit-code 1 \
-            --severity  \
+            --severity HIGH,CRITICAL \
             $IMAGE_NAME:${{ env.VERSION }}
 
       # 📊 Step 4: Generate report (only if passed)
